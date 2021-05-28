@@ -1,7 +1,10 @@
 #include "doctest.h"
 
+#include <memory>
+
 #include "object.h"
 #include "meta_descriptor.h"
+#include "box_objects.h"
 
 using namespace Reflecta;
 
@@ -79,5 +82,10 @@ TEST_CASE("Ensuring that calling reflected methods works") {
     auto class_instance = std::make_unique<MyTestClass>();
     class_instance->IntegerMember = 2;
     std::shared_ptr<MethodDescriptor> function = class_instance->get_method("CoolFunc").value();
-    CHECK(function->call<int>(class_instance.get()) == 8);
+    auto return_value = function->call<int>(class_instance.get()).value();
+    CHECK(return_value->is(Reflecta::get_meta_descriptor<Reflecta::IntObject>()));
+
+    auto integer_object = std::dynamic_pointer_cast<Reflecta::IntObject>(return_value);
+    CHECK(integer_object->value() == 8);
+
 }
