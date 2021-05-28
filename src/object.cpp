@@ -2,7 +2,6 @@
 #include "object.h"
 
 namespace Reflecta {
-
     REFLECTA_BEGIN(Object)
     REFLECTA_END(Object)
 }
