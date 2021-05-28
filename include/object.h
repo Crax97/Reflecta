@@ -58,5 +58,5 @@ namespace Reflecta {
 
 #define OBJECT_BASE() 										\
 public:														\
-virtual class MetaDescriptor* get_meta_descriptor();		\
+virtual class MetaDescriptor* get_meta_descriptor() override;\
 private:	
