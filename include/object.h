@@ -43,6 +43,12 @@ namespace Reflecta {
 			return *ptr;
 		}
 
+		
+		std::optional<std::shared_ptr<MethodDescriptor>> get_method(const std::string_view& property_name) {
+			// TODO: implement
+			return std::nullopt;
+		}
+
 	};
 }
 

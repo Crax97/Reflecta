@@ -77,7 +77,7 @@ TEST_CASE("Ensure that non-existing properties result in nullopt") {
 
 TEST_CASE("Ensuring that calling reflected methods works") {
     auto class_instance = std::make_unique<MyTestClass>();
-    class_instance->IntegerMember = 35;
-    auto function = class_instance->get_method("CoolFunc");
-    CHECK(function->call(class_instance, 10, 20, 30) == 65);
+    class_instance->IntegerMember = 2;
+    std::shared_ptr<MethodDescriptor> function = class_instance->get_method("CoolFunc").value();
+    CHECK(function->call<int>(class_instance.get()) == 8);
 }
