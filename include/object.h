@@ -49,6 +49,10 @@ namespace Reflecta {
 			return std::nullopt;
 		}
 
+		virtual bool is(class MetaDescriptor* descriptor) {
+			return descriptor == get_meta_descriptor();
+		}
+
 	};
 }
 
