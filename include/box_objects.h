@@ -3,32 +3,62 @@
 namespace Reflecta {
     class IntObject : public Object {
       OBJECT_BASE()
+      int m_value;
     public:
-		std::string to_string() const override;
-    int value() const;
+    IntObject(int value) : m_value(value) {}
+		std::string to_string() const override {
+      return std::string("IntObject") + std::to_string(m_value);
+    }
+    int value() const {
+      return m_value;
+    }
     };
     class LongObject : public Object {
       OBJECT_BASE()
+      long m_value;
     public:
-		std::string to_string() const override;
-    long value() const;
+    LongObject(long value) : m_value(value) {}
+		std::string to_string() const override {
+      return std::string("LongObject") + std::to_string(m_value);
+    }
+    long value() const {
+      return m_value;
+    }
     };
     class BoolObject : public Object {
       OBJECT_BASE()
+      bool m_value;
     public:
-		std::string to_string() const override;
-    bool value() const;
+    BoolObject(bool value) : m_value(value) {}
+		std::string to_string() const override {
+      return std::string("BoolObject") + std::to_string(m_value);
+    }
+    bool value() const {
+      return m_value;
+    }
     };
     class FloatObject : public Object {
       OBJECT_BASE()
+      float m_value;
     public:
-		std::string to_string() const override;
-    float value() const;
+    FloatObject(float value) : m_value(value) {}
+		std::string to_string() const override {
+      return std::string("FloatObject") + std::to_string(m_value);
+    }
+    float value() const {
+      return m_value;
+    }
     };
     class DoubleObject : public Object {
       OBJECT_BASE()
+      double m_value;
     public:
-		std::string to_string() const override;
-    double value() const;
+    DoubleObject(double value) : m_value(value) {}
+		std::string to_string() const override {
+      return std::string("DoubleObject") + std::to_string(m_value);
+    }
+    double value() const {
+      return m_value;
+    }
     };
 }
