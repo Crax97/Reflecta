@@ -64,3 +64,8 @@ TEST_CASE("Ensuring that property setter and getters work") {
     CHECK(class_instance->get_property<float>("FloatMember") == 42.0f);
     CHECK(class_instance->get_property<bool>("BooleanMember") == true);
 }
+
+TEST_CASE("Ensure that non-existing properties result in nullopt") {
+    auto class_instance = std::make_unique<MyTestClass>();
+    CHECK(class_instance->get_property<int>("Nonexistent") == std::nullopt);
+}

@@ -6,6 +6,7 @@
 #include <sstream>
 #include <string_view>
 #include <memory>
+#include <optional>
 
 namespace Reflecta {
 
@@ -21,10 +22,10 @@ namespace Reflecta {
 		virtual class MetaDescriptor* get_meta_descriptor();
 
 		template<typename Type>
-		Type set_property(const std::string_view& property_name, Type value) {
+		std::optional<Type> set_property(const std::string_view& property_name, Type value) {
 			auto property_descriptor = get_meta_descriptor()->get_property(property_name);
 			if (property_descriptor == nullptr) {
-				// TODO Handle error!
+				return std::nullopt;
 			}
 			auto* ptr = reinterpret_cast<Type*>(this + property_descriptor->offset_in_class);
 			*ptr = value;
@@ -33,10 +34,10 @@ namespace Reflecta {
 		}
 
 		template<typename Type>
-		Type get_property(const std::string_view& property_name) {
+		std::optional<Type> get_property(const std::string_view& property_name) {
 			auto property_descriptor = get_meta_descriptor()->get_property(property_name);
 			if (property_descriptor == nullptr) {
-				// TODO Handle error!
+				return std::nullopt;
 			}
 			auto* ptr = reinterpret_cast<Type*>(this + property_descriptor->offset_in_class);
 			
