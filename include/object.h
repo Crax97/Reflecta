@@ -1,10 +1,14 @@
 #pragma once
 
+#include "meta_descriptor.h"
+
 #include <string>
 #include <sstream>
 #include <string_view>
+#include <memory>
 
 namespace Reflecta {
+
 	class Object {
 
 		public:
@@ -17,39 +21,29 @@ namespace Reflecta {
 		virtual class MetaDescriptor* get_meta_descriptor();
 
 		template<typename Type>
-		Type set_property(const std::string_view& property_name, Type value);
+		Type set_property(const std::string_view& property_name, Type value) {
+			auto property_descriptor = get_meta_descriptor()->get_property(property_name);
+			if (property_descriptor == nullptr) {
+				// TODO Handle error!
+			}
+			auto* ptr = reinterpret_cast<Type*>(this + property_descriptor->offset_in_class);
+			*ptr = value;
+			
+			return value;
+		}
 
 		template<typename Type>
-		Type get_property(const std::string_view& property_name);
+		Type get_property(const std::string_view& property_name) {
+			auto property_descriptor = get_meta_descriptor()->get_property(property_name);
+			if (property_descriptor == nullptr) {
+				// TODO Handle error!
+			}
+			auto* ptr = reinterpret_cast<Type*>(this + property_descriptor->offset_in_class);
+			
+			return *ptr;
+		}
 
 	};
-
-	template<>
-	int Object::set_property<int>(const std::string_view& property_name, int value);
-	template<>
-	long Object::set_property<long>(const std::string_view& property_name, long value);
-	template<>
-	bool Object::set_property<bool>(const std::string_view& property_name, bool value);
-	template<>
-	float Object::set_property<float>(const std::string_view& property_name, float value);
-	template<>
-	double Object::set_property<double>(const std::string_view& property_name, double value);
-
-	template<>
-	int Object::get_property<int>(const std::string_view& property_name);
-
-	template<>
-	long Object::get_property<long>(const std::string_view& property_name);
-
-	template<>
-	bool Object::get_property<bool>(const std::string_view& property_name);
-
-	template<>
-	float Object::get_property<float>(const std::string_view& property_name);
-
-	template<>
-	double Object::get_property<double>(const std::string_view& property_name);
-
 }
 
 #define OBJECT_BASE() 										\
