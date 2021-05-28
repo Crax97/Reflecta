@@ -11,20 +11,38 @@
 
 namespace Reflecta {
 
+
+	template<typename Type>
+	class MetaDescriptor* get_meta_descriptor();
+
+	template<>
+	class MetaDescriptor* get_meta_descriptor<bool>();
+
+	template<>
+	class MetaDescriptor* get_meta_descriptor<int>();
+
+	template<>
+	class MetaDescriptor* get_meta_descriptor<long>();
+
+	template<>
+	class MetaDescriptor* get_meta_descriptor<float>();
+
+	template<>
+	class MetaDescriptor* get_meta_descriptor<double>();
+
+
 	template <typename PrimitiveType>
 	std::unique_ptr<class Object> to_boxed_object(PrimitiveType value);
 
 	struct MethodDescriptor {
 		public:
 		template<typename ReturnType, typename... Args>
-		std::optional<ReturnType> call(class Object* instance, Args... args) {
+		std::optional<std::shared_ptr<class Object>> call(class Object* instance, Args... args) {
 			// TODO: Implement
-			auto return_value = call_impl(instance, {to_boxed_object<Args>(std::forward<Args>(args)) ...});
-
-			return std::nullopt;
+			return call_impl(instance, {to_boxed_object<Args>(std::forward<Args>(args)) ...});
 		}
 
-		virtual std::optional<std::unique_ptr<class Object>> call_impl(class Object* instance,
+		virtual std::optional<std::shared_ptr<class Object>> call_impl(class Object* instance,
 			std::initializer_list<std::unique_ptr<class Object>> values) = 0;
 	};
 
@@ -67,25 +85,6 @@ namespace Reflecta {
 
 		const virtual std::string_view& get_type_name() const { return m_name; };
 	};
-
-	template<typename Type>
-	MetaDescriptor* get_meta_descriptor();
-
-	template<>
-	MetaDescriptor* get_meta_descriptor<bool>();
-
-	template<>
-	MetaDescriptor* get_meta_descriptor<int>();
-
-	template<>
-	MetaDescriptor* get_meta_descriptor<long>();
-
-	template<>
-	MetaDescriptor* get_meta_descriptor<float>();
-
-	template<>
-	MetaDescriptor* get_meta_descriptor<double>();
-
 	template<typename FPtrType>
 	std::shared_ptr<MethodDescriptor> get_method_descriptor() {
 		return nullptr;
