@@ -9,7 +9,11 @@ include_directories(include)
 
 set(SOURCES)
 
-set(REFELCTA_SOURCES src/object.cpp src/meta_descriptor.cpp)
+set(REFELCTA_SOURCES 
+    src/object.cpp 
+    src/meta_descriptor.cpp
+    src/box_objects.cpp
+)
 
 set(TEST_SOURCES ${REFELCTA_SOURCES} tests/main.cpp tests/tests.cpp)
 
