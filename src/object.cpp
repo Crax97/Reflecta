@@ -4,5 +4,5 @@
 namespace Reflecta {
 
     REFLECTA_BEGIN(Object)
-    REFLECTA_END()
+    REFLECTA_END(Object)
 }

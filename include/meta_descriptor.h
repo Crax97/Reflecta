@@ -55,18 +55,22 @@ namespace Reflecta {
 
 }
 
-#define REFLECTA_BEGIN(Name) \
+#define REFLECTA_BEGIN(Name) 							\
 class Name ## _Descriptor : public MetaDescriptor { 	\
-	public: 										\
-													\
+	public: 											\
 	Name ## _Descriptor() : MetaDescriptor(#Name) { 	\
-	using Type = Name; 								\
 
 
 #define REFLECTA_REFLECT_MEMBER(MemberType, MemberName) \
 	instance_members.insert({#MemberName, Reflecta::get_descriptor<MemberType>()}); \
 
 
-#define REFLECTA_END() 						\
+#define REFLECTA_END(Name) 						\
 } 											\
-};
+};											\
+											\
+template<> 									\
+MetaDescriptor* get_descriptor<Name>() {	\
+	static Name ## _Descriptor* descriptor = new Name ## _Descriptor(); \
+	return descriptor;						\
+}											
