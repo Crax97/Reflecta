@@ -15,7 +15,7 @@ class MyTestClass : public Object {
     bool BooleanMember;
 
     int CoolFunc(int a, int b, int c) { 
-        return a + b + c;
+        return a + b + c + IntegerMember;
     }
 };
 
@@ -23,6 +23,7 @@ REFLECTA_BEGIN(MyTestClass)
     REFLECTA_REFLECT_MEMBER(IntegerMember)
     REFLECTA_REFLECT_MEMBER(FloatMember)
     REFLECTA_REFLECT_MEMBER(BooleanMember)
+    REFLECTA_REFLECT_METHOD(&MyTestClass::CoolFunc)
 REFLECTA_END(MyTestClass)
 
 TEST_CASE("Ensure that REFLECTA_OFFSETOF works") {
@@ -48,7 +49,7 @@ TEST_CASE("Ensure that class descriptors exist") {
 TEST_CASE("Ensuring that properties are correctly reflected") {
     auto class_instance = std::make_unique<MyTestClass>();
     auto descriptor = class_instance->get_meta_descriptor();
-    CHECK(descriptor->get_methods().size() == 0);
+    CHECK(descriptor->get_methods().size() == 1);
     CHECK(descriptor->get_instance_members().size() == 3);
     CHECK(descriptor->get_property("IntegerMember")->offset_in_class != 0);
     CHECK(descriptor->get_property("IntegerMember")->descriptor == Reflecta::get_meta_descriptor<int>());
@@ -72,4 +73,11 @@ TEST_CASE("Ensuring that property setter and getters work") {
 TEST_CASE("Ensure that non-existing properties result in nullopt") {
     auto class_instance = std::make_unique<MyTestClass>();
     CHECK(class_instance->get_property<int>("Nonexistent") == std::nullopt);
+}
+
+TEST_CASE("Ensuring that calling reflected methods works") {
+    auto class_instance = std::make_unique<MyTestClass>();
+    class_instance->IntegerMember = 35;
+    auto function = class_instance->get_method("CoolFunc");
+    CHECK(function->call(class_instance, 10, 20, 30) == 65);
 }
