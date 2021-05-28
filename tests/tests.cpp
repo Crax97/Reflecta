@@ -63,6 +63,10 @@ TEST_CASE("Ensuring that property setter and getters work") {
     CHECK(class_instance->get_property<int>("IntegerMember") == 128);
     CHECK(class_instance->get_property<float>("FloatMember") == 42.0f);
     CHECK(class_instance->get_property<bool>("BooleanMember") == true);
+
+    CHECK(class_instance->IntegerMember == 128);
+    CHECK(class_instance->FloatMember == 42.0f);
+    CHECK(class_instance->BooleanMember == true);
 }
 
 TEST_CASE("Ensure that non-existing properties result in nullopt") {

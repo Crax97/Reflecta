@@ -27,7 +27,7 @@ namespace Reflecta {
 			if (property_descriptor == nullptr) {
 				return std::nullopt;
 			}
-			auto* ptr = reinterpret_cast<Type*>(this + property_descriptor->offset_in_class);
+			auto* ptr = reinterpret_cast<Type*>(reinterpret_cast<char*>(this) + property_descriptor->offset_in_class);
 			*ptr = value;
 			
 			return value;
@@ -39,8 +39,7 @@ namespace Reflecta {
 			if (property_descriptor == nullptr) {
 				return std::nullopt;
 			}
-			auto* ptr = reinterpret_cast<Type*>(this + property_descriptor->offset_in_class);
-			
+			auto* ptr = reinterpret_cast<Type*>(reinterpret_cast<char*>(this) + property_descriptor->offset_in_class);
 			return *ptr;
 		}
 
