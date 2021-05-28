@@ -56,5 +56,11 @@ TEST_CASE("Ensuring that properties are correctly reflected") {
 
 TEST_CASE("Ensuring that property setter and getters work") {
     auto class_instance = std::make_unique<MyTestClass>();
-    auto descriptor = class_instance->get_meta_descriptor();
+    class_instance->set_property("IntegerMember", 128);
+    class_instance->set_property("FloatMember", 42.0f);
+    class_instance->set_property("BooleanMeber", true);
+
+    CHECK(class_instance->get_property<int>("IntegerMember") == 128);
+    CHECK(class_instance->get_property<float>("FloatMember") == 42.0f);
+    CHECK(class_instance->get_property<bool>("BooleanMeber") == true);
 }
