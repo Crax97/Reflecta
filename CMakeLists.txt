@@ -9,7 +9,7 @@ set(SOURCES)
 
 set(REFELCTA_SOURCES src/object.cpp src/meta_descriptor.cpp)
 
-set(TEST_SOURCES ${REFELCTA_SOURCES} tests/main.cpp)
+set(TEST_SOURCES ${REFELCTA_SOURCES} tests/main.cpp tests/tests.cpp)
 
 set(CMAKE_CXX_STANDARD 17)
 
