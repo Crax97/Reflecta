@@ -10,15 +10,21 @@
 #define REFLECTA_OFFSETOF(Type, Name) reinterpret_cast<size_t>(&static_cast<Type*>(nullptr)->Name)
 
 namespace Reflecta {
+
+	template <typename PrimitiveType>
+	std::unique_ptr<class Object> to_boxed_object(PrimitiveType value);
+
 	struct MethodDescriptor {
 		public:
 		template<typename ReturnType, typename... Args>
 		std::optional<ReturnType> call(class Object* instance, Args... args) {
 			// TODO: Implement
+			auto return_value = call_impl(instance, {to_boxed_object<Args>(std::forward<Args>(args)) ...});
+
 			return std::nullopt;
 		}
 
-		virtual std::optional<std::unique_ptr<class Object>> call(std::unique_ptr<class Object>& instance,
+		virtual std::optional<std::unique_ptr<class Object>> call_impl(class Object* instance,
 			std::initializer_list<std::unique_ptr<class Object>> values) = 0;
 	};
 
