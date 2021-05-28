@@ -33,9 +33,6 @@ namespace Reflecta {
 		}
 
 		const virtual std::string_view& get_type_name() const { return m_name; };
-
-		virtual std::unique_ptr<class Object> get(std::unique_ptr<class Object> instance) { return nullptr; }
-		virtual std::unique_ptr<class Object> set(std::unique_ptr<class Object> instance, std::unique_ptr<class Object> value) { return nullptr; }
 	};
 
 	template<typename Type>
