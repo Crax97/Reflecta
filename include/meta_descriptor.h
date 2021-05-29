@@ -6,6 +6,8 @@
 #include <memory>
 #include <string_view>
 #include <optional>
+#include <vector>
+#include <functional>
 
 #define REFLECTA_OFFSETOF(Type, Name) reinterpret_cast<size_t>(&static_cast<Type*>(nullptr)->Name)
 
@@ -15,35 +17,23 @@ namespace Reflecta {
 	template<typename Type>
 	class MetaDescriptor* get_meta_descriptor();
 
-	template<>
-	class MetaDescriptor* get_meta_descriptor<bool>();
-
-	template<>
-	class MetaDescriptor* get_meta_descriptor<int>();
-
-	template<>
-	class MetaDescriptor* get_meta_descriptor<long>();
-
-	template<>
-	class MetaDescriptor* get_meta_descriptor<float>();
-
-	template<>
-	class MetaDescriptor* get_meta_descriptor<double>();
-
+	template <typename PrimitiveType>
+	std::shared_ptr<class Object> to_boxed_object(PrimitiveType value);
 
 	template <typename PrimitiveType>
-	std::unique_ptr<class Object> to_boxed_object(PrimitiveType value);
+	std::optional<PrimitiveType> unbox_to(const std::shared_ptr<Object>& object);
 
 	struct MethodDescriptor {
 		public:
 		template<typename ReturnType, typename... Args>
 		std::optional<std::shared_ptr<class Object>> call(class Object* instance, Args... args) {
-			// TODO: Implement
-			return call_impl(instance, {to_boxed_object<Args>(std::forward<Args>(args)) ...});
+			
+			std::vector<std::shared_ptr<Object>> arg_list;
+			return call_impl(instance, {to_boxed_object(args)...});
 		}
 
 		virtual std::optional<std::shared_ptr<class Object>> call_impl(class Object* instance,
-			std::initializer_list<std::unique_ptr<class Object>> values) = 0;
+			std::vector<std::shared_ptr<class Object>> values) = 0;
 	};
 
 	struct MemberDescriptor {
@@ -83,13 +73,52 @@ namespace Reflecta {
 			return it->second;
 		}
 
+		const std::shared_ptr<MethodDescriptor> get_method(const std::string_view& method_name) const {
+
+			const auto it = instance_methods.find(method_name);
+			if (it == instance_methods.cend()) {
+				return nullptr;
+			}
+			return it->second;
+		}
+
 		const virtual std::string_view& get_type_name() const { return m_name; };
 	};
-	template<typename FPtrType>
-	std::shared_ptr<MethodDescriptor> get_method_descriptor() {
-		return nullptr;
+	template<typename BaseClass, typename ReturnType, typename ...Args, unsigned long... Indices>
+	ReturnType call_helper(	BaseClass* derived, 
+							ReturnType (BaseClass::*method_ptr)(Args... args), 
+							std::vector<std::shared_ptr<class Object>> values, 
+							std::index_sequence<Indices...>) {
+		return (derived->*method_ptr)(unbox_to<Args>(values[Indices]).value()...);
 	}
-}												\
+	template<typename BaseClass, typename ReturnType, typename ...Args>
+	std::shared_ptr<MethodDescriptor> get_method_descriptor(ReturnType (BaseClass::*method_ptr)(Args... args)) {
+		struct SpecializedMethodDescriptor : public MethodDescriptor {
+			typedef  ReturnType (BaseClass::*MemberFn)(Args... args);
+			MemberFn m_fn;
+
+			public:
+			SpecializedMethodDescriptor(MemberFn init_m_fn) : m_fn(init_m_fn) {}
+			virtual std::optional<std::shared_ptr<class Object>> call_impl(class Object* instance,
+						std::vector<std::shared_ptr<class Object>> values) override {
+							auto derived = reinterpret_cast<BaseClass*>(instance);
+							if (derived == nullptr) 
+								return std::nullopt;
+
+							auto return_value = call_helper(derived, m_fn, values, std::index_sequence_for<Args...>{});
+							return to_boxed_object<decltype(return_value)>(return_value);
+						}
+		};
+
+		static std::shared_ptr<MethodDescriptor> descriptor = std::make_shared<SpecializedMethodDescriptor>(method_ptr);
+
+		return descriptor;
+	}
+}												
+
+template<typename Base, typename Return, typename... Args>
+Return get_return_type(Return (Base::*ptr)(Args... args));
+
 
 #define REFLECTA_BEGIN(Name) 							\
 class Name ## _Descriptor : public MetaDescriptor { 	\
@@ -105,7 +134,8 @@ class Name ## _Descriptor : public MetaDescriptor { 	\
 
 
 #define REFLECTA_REFLECT_METHOD(MethodName) 								\
-	instance_methods.emplace(std::make_pair(#MethodName, Reflecta::get_method_descriptor<decltype(MethodName)>()));
+	instance_methods.emplace(std::make_pair(#MethodName, 	\
+	Reflecta::get_method_descriptor<MyType, decltype(get_return_type<MyType>(&MyType::MethodName))>(&MyType::MethodName)));
 
 
 #define REFLECTA_END(Name) 													\

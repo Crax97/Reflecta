@@ -44,9 +44,12 @@ namespace Reflecta {
 		}
 
 		
-		std::optional<std::shared_ptr<MethodDescriptor>> get_method(const std::string_view& property_name) {
+		std::optional<std::shared_ptr<MethodDescriptor>> get_method(const std::string_view& method_name) {
 			// TODO: implement
-			return std::nullopt;
+			auto method_descriptor = get_meta_descriptor()->get_method(method_name);
+			if (method_descriptor == nullptr)
+				return std::nullopt;
+			return method_descriptor;
 		}
 
 		virtual bool is(class MetaDescriptor* descriptor) {
