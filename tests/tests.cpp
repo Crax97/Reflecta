@@ -78,6 +78,20 @@ TEST_CASE("Ensure that non-existing properties result in nullopt") {
     CHECK(class_instance->get_property<int>("Nonexistent") == std::nullopt);
 }
 
+TEST_CASE("Ensure that values are correctly boxed") {
+    int a = 10;
+    long b = 23;
+    float c = 23.24f;
+    double d = 123.321;
+    bool yes = true;
+
+    CHECK(std::dynamic_pointer_cast<IntObject>(to_boxed_object(a))->value() == a);
+    CHECK(std::dynamic_pointer_cast<LongObject>(to_boxed_object(b))->value() == b);
+    CHECK(std::dynamic_pointer_cast<BoolObject>(to_boxed_object(yes))->value() == yes);
+    CHECK(std::dynamic_pointer_cast<FloatObject>(to_boxed_object(c))->value() == c);
+    CHECK(std::dynamic_pointer_cast<DoubleObject>(to_boxed_object(d))->value() == d);
+}
+
 TEST_CASE("Ensuring that calling reflected methods works") {
     auto class_instance = std::make_unique<MyTestClass>();
     class_instance->IntegerMember = 2;
