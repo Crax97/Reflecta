@@ -26,7 +26,7 @@ REFLECTA_BEGIN(MyTestClass)
     REFLECTA_REFLECT_MEMBER(IntegerMember)
     REFLECTA_REFLECT_MEMBER(FloatMember)
     REFLECTA_REFLECT_MEMBER(BooleanMember)
-    REFLECTA_REFLECT_METHOD(&MyTestClass::CoolFunc)
+    REFLECTA_REFLECT_METHOD(CoolFunc)
 REFLECTA_END(MyTestClass)
 
 TEST_CASE("Ensure that REFLECTA_OFFSETOF works") {
@@ -96,10 +96,20 @@ TEST_CASE("Ensuring that calling reflected methods works") {
     auto class_instance = std::make_unique<MyTestClass>();
     class_instance->IntegerMember = 2;
     std::shared_ptr<MethodDescriptor> function = class_instance->get_method("CoolFunc").value();
+    auto return_value = function->call<int>(class_instance.get(), 1, 2, 3).value();
+    CHECK(return_value->is(Reflecta::get_meta_descriptor<Reflecta::IntObject>()));
+
+    auto integer_object = std::dynamic_pointer_cast<Reflecta::IntObject>(return_value);
+    CHECK(integer_object->value() == 8);
+}
+
+TEST_CASE("Ensuring that calling a function with the wrong arguments does not work") {
+    auto class_instance = std::make_unique<MyTestClass>();
+    class_instance->IntegerMember = 2;
+    std::shared_ptr<MethodDescriptor> function = class_instance->get_method("CoolFunc").value();
     auto return_value = function->call<int>(class_instance.get()).value();
     CHECK(return_value->is(Reflecta::get_meta_descriptor<Reflecta::IntObject>()));
 
     auto integer_object = std::dynamic_pointer_cast<Reflecta::IntObject>(return_value);
     CHECK(integer_object->value() == 8);
-
 }
