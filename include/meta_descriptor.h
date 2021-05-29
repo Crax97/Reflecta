@@ -8,6 +8,7 @@
 #include <optional>
 #include <vector>
 #include <functional>
+#include <typeindex>
 
 #define REFLECTA_OFFSETOF(Type, Name) reinterpret_cast<size_t>(&static_cast<Type*>(nullptr)->Name)
 
@@ -23,12 +24,27 @@ namespace Reflecta {
 	template <typename PrimitiveType>
 	std::optional<PrimitiveType> unbox_to(const std::shared_ptr<Object>& object);
 
+	template <typename... Args>
+	bool are_the_same(std::vector<std::type_index> original_arg_types) {
+		std::vector<std::type_index> arg_types = {std::type_index(typeid(Args))...};
+		return original_arg_types == arg_types;
+	}
+
 	struct MethodDescriptor {
+		private:
+		const std::type_info& m_original_return_type;
+		std::vector<std::type_index> m_original_arg_types;
 		public:
+		MethodDescriptor(const std::type_info& original_return_type, std::vector<std::type_index> original_arg_types)
+			: m_original_return_type(original_return_type), m_original_arg_types(original_arg_types) {}
 		template<typename ReturnType, typename... Args>
 		std::optional<std::shared_ptr<class Object>> call(class Object* instance, Args... args) {
 			
-			std::vector<std::shared_ptr<Object>> arg_list;
+			if (m_original_return_type != typeid(ReturnType))
+				return std::nullopt;
+			bool args_are_correct = are_the_same<decltype(args)...>(m_original_arg_types);
+			if (!args_are_correct) 
+				return std::nullopt;
 			return call_impl(instance, {to_boxed_object(args)...});
 		}
 
@@ -98,7 +114,7 @@ namespace Reflecta {
 			MemberFn m_fn;
 
 			public:
-			SpecializedMethodDescriptor(MemberFn init_m_fn) : m_fn(init_m_fn) {}
+			SpecializedMethodDescriptor(MemberFn init_m_fn) : MethodDescriptor(typeid(ReturnType), {std::type_index(typeid(Args))...} ), m_fn(init_m_fn) {}
 			virtual std::optional<std::shared_ptr<class Object>> call_impl(class Object* instance,
 						std::vector<std::shared_ptr<class Object>> values) override {
 							auto derived = reinterpret_cast<BaseClass*>(instance);

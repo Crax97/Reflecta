@@ -107,9 +107,11 @@ TEST_CASE("Ensuring that calling a function with the wrong arguments does not wo
     auto class_instance = std::make_unique<MyTestClass>();
     class_instance->IntegerMember = 2;
     std::shared_ptr<MethodDescriptor> function = class_instance->get_method("CoolFunc").value();
-    auto return_value = function->call<int>(class_instance.get()).value();
-    CHECK(return_value->is(Reflecta::get_meta_descriptor<Reflecta::IntObject>()));
+    auto return_value = function->call<int>(class_instance.get());
+    CHECK(!return_value.has_value());
 
-    auto integer_object = std::dynamic_pointer_cast<Reflecta::IntObject>(return_value);
-    CHECK(integer_object->value() == 8);
+    return_value = function->call<float>(class_instance.get());
+    CHECK(!return_value.has_value());
+    return_value = function->call<int>(class_instance.get(), 1.0f, 2.3f);
+    CHECK(!return_value.has_value());
 }
